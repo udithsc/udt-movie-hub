@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { default as HomeIcon } from '@heroicons/react/24/outline/HomeIcon';
 import { default as CheckBadgeIcon } from '@heroicons/react/24/outline/CheckBadgeIcon';
@@ -10,14 +10,19 @@ import { default as UserIcon } from '@heroicons/react/24/outline/UserIcon';
 import { default as MagnifyingGlassIcon } from '@heroicons/react/24/outline/MagnifyingGlassIcon';
 import HeaderItem from './HeaderItem';
 import { motion } from 'framer-motion';
+import useMovieStore from '@/store/useMovieStore';
+import { useRouter } from 'next/navigation';
 
-function Header({ onSearch }) {
+function Header() {
   const [searchQuery, setSearchQuery] = useState('');
+  const { searchMoviesByQuery } = useMovieStore();
+  const router = useRouter();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      onSearch(searchQuery);
+      await searchMoviesByQuery(searchQuery);
+      router.push(`/?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
     }
   };
@@ -48,7 +53,9 @@ function Header({ onSearch }) {
           <motion.input
             type='text'
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setSearchQuery(e.target.value)
+            }
             placeholder='Search movies...'
             className='bg-gray-800/50 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 border border-gray-700 w-48 sm:w-64'
             whileFocus={{ scale: 1.02 }}

@@ -1,8 +1,15 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ComponentType } from 'react';
 
-function HeaderItem({ title, Icon, onClick }) {
+interface HeaderItemProps {
+  title: string;
+  Icon: ComponentType<{ className?: string }>;
+  onClick?: () => void;
+}
+
+function HeaderItem({ title, Icon, onClick }: HeaderItemProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.1, y: -2 }}

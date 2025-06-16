@@ -1,46 +1,47 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Header from '@/components/Header';
 import Nav from '@/components/Nav';
 import Results from '@/components/Results';
-import { fetchMovies, searchMovies, MovieResponse } from '@/utils/api';
+import useMovieStore from '@/store/useMovieStore';
 
 export default function Home() {
-  const [movies, setMovies] = useState<MovieResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const {
+    movies,
+    searchResults,
+    isLoading,
+    error,
+    fetchMoviesByGenre,
+    selectedGenre,
+  } = useMovieStore();
 
-  // Initial load
+  const searchQuery = searchParams.get('search');
+  const genre = searchParams.get('genre');
+
   useEffect(() => {
-    const loadInitialMovies = async () => {
-      const data = await fetchMovies();
-      setMovies(data);
-      setIsLoading(false);
-    };
-    loadInitialMovies();
-  }, []);
-
-  const handleSearch = async (query: string) => {
-    setIsLoading(true);
-    try {
-      const data = await searchMovies(query);
-      setMovies(data);
-    } catch (error) {
-      console.error('Error searching movies:', error);
+    if (genre && genre !== selectedGenre) {
+      fetchMoviesByGenre(genre);
+    } else if (!genre && !searchQuery) {
+      fetchMoviesByGenre();
     }
-    setIsLoading(false);
-  };
+  }, [genre, searchQuery, selectedGenre, fetchMoviesByGenre]);
 
   return (
-    <main className='min-h-screen'>
-      <Header onSearch={handleSearch} />
+    <main className='min-h-screen bg-[#06202A]'>
+      <Header />
       <Nav />
+
       {isLoading ? (
-        <div className='flex items-center justify-center min-h-[50vh]'>
+        <div className='flex justify-center items-center h-64'>
           <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500'></div>
         </div>
+      ) : error ? (
+        <div className='text-center text-red-500 mt-4'>{error}</div>
       ) : (
-        <Results movies={movies || { results: [] }} />
+        <Results results={searchQuery ? searchResults : movies} />
       )}
     </main>
   );

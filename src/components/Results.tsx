@@ -3,22 +3,10 @@
 import React from 'react';
 import Thumbnail from './Thumbnail';
 import { motion, AnimatePresence } from 'framer-motion';
-
-interface Movie {
-  id: number;
-  title: string;
-  overview: string;
-  backdrop_path: string;
-  poster_path: string;
-  release_date: string;
-  vote_count: number;
-  media_type?: string;
-}
+import { Movie } from '@/utils/api';
 
 interface ResultsProps {
-  movies: {
-    results: Movie[];
-  };
+  results: Movie[];
 }
 
 const container = {
@@ -36,11 +24,14 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-function Results({ movies = { results: [] } }: ResultsProps) {
-  if (!movies || !movies.results) {
+function Results({ results = [] }: ResultsProps) {
+  if (!results || results.length === 0) {
     return (
-      <div className='px-5 my-10 text-center'>
-        <p>Loading...</p>
+      <div className='px-5 my-10 text-center text-gray-400'>
+        <p>
+          No movies found. Try searching for something else or select a
+          different category.
+        </p>
       </div>
     );
   }
@@ -52,8 +43,8 @@ function Results({ movies = { results: [] } }: ResultsProps) {
       animate='show'
       className='px-5 my-10 sm:grid md:grid-cols-2 xl:grid-cols-3 3xl:flex flex-wrap justify-center gap-4'
     >
-      <AnimatePresence>
-        {movies.results.map((movie) => (
+      <AnimatePresence mode='wait'>
+        {results.map((movie) => (
           <motion.div
             key={movie.id}
             variants={item}
@@ -63,6 +54,7 @@ function Results({ movies = { results: [] } }: ResultsProps) {
             }}
             whileTap={{ scale: 0.95 }}
             className='transform transition-all duration-200'
+            layout
           >
             <Thumbnail movie={movie} />
           </motion.div>
