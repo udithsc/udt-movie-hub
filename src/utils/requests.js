@@ -1,4 +1,4 @@
-const API_KEY = process.env.API_KEY;
+const API_KEY = process.env.NEXT_PUBLIC_API_KEY;
 
 export default {
   fetchTrending: {
@@ -9,19 +9,19 @@ export default {
     title: 'Top Rated',
     url: `/movie/top_rated?api_key=${API_KEY}&language=en-US`,
   },
-  fetchAction: {
+  fetchActionMovies: {
     title: 'Action',
     url: `/discover/movie?api_key=${API_KEY}&with_genres=28`,
   },
-  fetchComedy: {
+  fetchComedyMovies: {
     title: 'Comedy',
     url: `/discover/movie?api_key=${API_KEY}&with_genres=35`,
   },
-  fetchHorror: {
+  fetchHorrorMovies: {
     title: 'Horror',
     url: `/discover/movie?api_key=${API_KEY}&with_genres=27`,
   },
-  fetchRomance: {
+  fetchRomanceMovies: {
     title: 'Romance',
     url: `/discover/movie?api_key=${API_KEY}&with_genres=10749`,
   },
