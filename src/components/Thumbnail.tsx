@@ -1,85 +1,46 @@
-'use client';
+"use client";
 
-import { default as HandThumbUpIcon } from '@heroicons/react/24/outline/HandThumbUpIcon';
-import Image from 'next/image';
-import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
-
-interface Movie {
-  id: number;
-  title: string;
-  original_name?: string;
-  overview: string;
-  backdrop_path: string;
-  poster_path: string;
-  release_date: string;
-  first_air_date?: string;
-  vote_count: number;
-  media_type?: string;
-}
+import { Movie } from "@/utils/api";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import useMovieStore from "@/store/useMovieStore";
 
 interface ThumbnailProps {
   movie: Movie;
 }
 
-const Thumbnail = forwardRef<HTMLDivElement, ThumbnailProps>(
-  ({ movie }, ref) => {
-    const BASE_URL = 'http://image.tmdb.org/t/p/original';
+function Thumbnail({ movie }: ThumbnailProps) {
+  const { setSelectedMovie, openModal } = useMovieStore();
 
-    return (
-      <motion.div
-        ref={ref}
-        className='group cursor-pointer p-2 transition duration-200 ease-in transform hover:z-50'
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-      >
-        <div className='relative overflow-hidden rounded-lg'>
-          <Image
-            layout='responsive'
-            src={
-              `${BASE_URL}${movie.backdrop_path || movie.poster_path}` ||
-              `${BASE_URL}${movie.poster_path}`
-            }
-            height={1080}
-            width={1920}
-            alt={movie.title || movie.original_name || 'Movie thumbnail'}
-            className='transform transition duration-300 group-hover:scale-110'
-          />
-          <motion.div
-            className='absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300'
-            initial={{ opacity: 0 }}
-            whileHover={{ opacity: 1 }}
-          />
-        </div>
-        <div className='p-2'>
-          <motion.p
-            className='truncate max-w-md text-gray-300'
-            initial={{ opacity: 0, y: 10 }}
-            whileHover={{ opacity: 1, y: 0 }}
-          >
-            {movie.overview}
-          </motion.p>
-          <motion.h2
-            className='mt-1 text-2xl text-white transition-all duration-100 ease-in-out group-hover:font-bold'
-            whileHover={{ scale: 1.02 }}
-          >
+  const handleClick = () => {
+    setSelectedMovie(movie);
+    openModal();
+  };
+
+  return (
+    <motion.div
+      onClick={handleClick}
+      className="relative cursor-pointer transition duration-200 ease-out hover:scale-105"
+    >
+      <div className="relative w-full aspect-[4/3] rounded-md overflow-hidden">
+        <Image
+          src={`https://image.tmdb.org/t/p/w500${
+            movie.backdrop_path || movie.poster_path
+          }`}
+          alt={movie.title || movie.original_name || ""}
+          fill
+          className="object-cover rounded-md"
+          sizes="(max-width: 768px) 180px, 260px"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-2 left-2 right-2">
+          <h3 className="text-sm font-semibold text-white line-clamp-1">
             {movie.title || movie.original_name}
-          </motion.h2>
-          <motion.p
-            className='flex items-center opacity-0 group-hover:opacity-100 text-gray-300'
-            initial={{ opacity: 0, y: 10 }}
-            whileHover={{ opacity: 1, y: 0 }}
-          >
-            {movie.media_type && `${movie.media_type} •`}{' '}
-            {movie.release_date || movie.first_air_date}•{' '}
-            <HandThumbUpIcon className='h-5 mx-2' /> {movie.vote_count}
-          </motion.p>
+          </h3>
         </div>
-      </motion.div>
-    );
-  }
-);
-
-Thumbnail.displayName = 'Thumbnail';
+      </div>
+    </motion.div>
+  );
+}
 
 export default Thumbnail;

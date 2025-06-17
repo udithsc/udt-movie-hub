@@ -41,7 +41,7 @@ function Results({ results = [] }: ResultsProps) {
       variants={container}
       initial='hidden'
       animate='show'
-      className='px-5 my-10 sm:grid md:grid-cols-2 xl:grid-cols-3 3xl:flex flex-wrap justify-center gap-4'
+      className='grid px-5 my-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-4'
     >
       <AnimatePresence mode='wait'>
         {results.map((movie) => (
