@@ -1,6 +1,6 @@
-import { Metadata } from "next";
+import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Hulu 2.0",
-  description: "Watch movies and TV shows on Hulu",
+  title: 'UDT Movies',
+  description: 'Watch movies and TV shows on UDT Movies',
 };
