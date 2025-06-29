@@ -7,13 +7,12 @@ import { motion } from "framer-motion";
 
 function SearchBar() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { searchMoviesByQuery, clearSearchResults } = useMovieStore();
+  const { clearSearchResults } = useMovieStore();
   const router = useRouter();
 
   const handleSearch = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      await searchMoviesByQuery(searchQuery);
       router.push(`/?search=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
     } else {

@@ -1,109 +1,182 @@
 'use client';
 
-import { useEffect, useCallback, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Header from '@/components/Header';
+import HeroSection from '@/components/HeroSection';
+import TrendingSection from '@/components/TrendingSection';
+import TrailerSection from '@/components/TrailerSection';
+import GenreRows from '@/components/GenreRows';
 import Results from '@/components/Results';
 import MovieModal from '@/components/MovieModal';
+import Nav from '@/components/Nav';
 import useMovieStore from '@/store/useMovieStore';
-import SearchBar from '@/components/SearchBar';
 import Footer from '@/components/Footer';
+import { Movie, fetchMovies } from '@/api';
 
 export default function HomeClient() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [trendingMovies, setTrendingMovies] = useState<Movie[]>([]);
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  
   const {
     movies,
     searchResults,
     isLoading,
     error,
+    searchMovies,
     fetchMoviesByGenre,
-    hasMore,
     selectedGenre,
     selectedMovie,
     isModalOpen,
     closeModal,
+    setSelectedMovie,
+    openModal,
   } = useMovieStore();
 
   const searchQuery = searchParams.get('search');
   const genre = searchParams.get('genre');
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Initial fetch or genre change fetch
+  // Fetch initial data
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        // Fetch trending movies directly
+        const trendingData = await fetchMovies('fetchTrending');
+        setTrendingMovies(trendingData?.results || []);
+
+        // Fetch popular movies (using top rated)
+        const popularData = await fetchMovies('fetchTopRated');
+        setPopularMovies(popularData?.results || []);
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
+
+  // Handle genre fetching
   useEffect(() => {
     if (!searchQuery) {
-      // Only fetch genres if not in search mode
       if (genre && genre !== selectedGenre) {
         fetchMoviesByGenre(genre, false);
       } else if (!genre && !selectedGenre) {
-        // Initial load for trending
-        fetchMoviesByGenre(undefined, false);
+        fetchMoviesByGenre('fetchTrending', false);
       }
     }
   }, [genre, searchQuery, selectedGenre, fetchMoviesByGenre]);
 
-  // Handle scroll for infinite loading
-  const handleScroll = useCallback(() => {
-    if (containerRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
-      if (
-        scrollHeight - scrollTop - clientHeight < 100 &&
-        !isLoading &&
-        hasMore &&
-        !searchQuery
-      ) {
-        fetchMoviesByGenre(selectedGenre || undefined, true);
-      }
+  // Handle search from hero section
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      router.push(`/?search=${encodeURIComponent(query)}`);
+      searchMovies(query);
     }
-  }, [isLoading, hasMore, fetchMoviesByGenre, selectedGenre, searchQuery]);
+  };
 
+  // Handle movie click
+  const handleMovieClick = (movie: Movie) => {
+    setSelectedMovie(movie);
+    openModal();
+  };
+
+  // Handle search from URL params
   useEffect(() => {
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
+    if (searchQuery) {
+      searchMovies(searchQuery);
     }
-  }, [handleScroll]);
+  }, [searchQuery, searchMovies]);
 
   return (
-    <main className='min-h-screen bg-[#06202A] flex flex-col'>
+    <main className='min-h-screen bg-white'>
       <Header />
-      <div className='flex justify-center mt-2 mb-4 px-4'>
-        <SearchBar />
-      </div>
-
-      <div
-        ref={containerRef}
-        className='flex-1 overflow-y-auto'
-        style={{ maxHeight: 'calc(100vh - 180px)' }}
-      >
-        {isLoading && movies.length === 0 ? ( // Initial loading
-          <div className='flex justify-center items-center h-64'>
-            <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500'></div>
+      
+      {/* Show different layouts based on current state */}
+      {searchQuery ? (
+        /* Search Results */
+        <div className='bg-white min-h-screen'>
+          <div className='container mx-auto px-4 py-8'>
+            <h1 className='text-3xl font-bold text-gray-800 mb-2'>
+              Search Results for &ldquo;{searchQuery}&rdquo;
+            </h1>
+            <p className='text-gray-600 mb-8'>
+              {searchResults.length} {searchResults.length === 1 ? 'result' : 'results'} found
+            </p>
+            {isLoading ? (
+              <div className='flex justify-center items-center h-64'>
+                <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500'></div>
+              </div>
+            ) : error ? (
+              <div className='text-center text-red-500 mt-4 bg-red-50 p-4 rounded-lg'>{error}</div>
+            ) : searchResults.length === 0 ? (
+              <div className='text-center py-16'>
+                <div className='text-gray-400 text-6xl mb-4'>🔍</div>
+                <h2 className='text-2xl font-semibold text-gray-700 mb-2'>No Results Found</h2>
+                <p className='text-gray-500'>Try searching with different keywords.</p>
+              </div>
+            ) : (
+              <Results results={searchResults} onMovieClick={handleMovieClick} />
+            )}
           </div>
-        ) : error ? (
-          <div className='text-center text-red-500 mt-4'>{error}</div>
-        ) : (
-          <Results results={searchQuery ? searchResults : movies} />
-        )}
-
-        {isLoading && movies.length > 0 && (
-          <div className='flex justify-center py-4'>
-            <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500'></div>
+        </div>
+      ) : genre ? (
+        /* Genre-based Movie Grid */
+        <>
+          <div className='bg-[#032541] py-4'>
+            <div className='container mx-auto px-4'>
+              <Nav />
+            </div>
           </div>
-        )}
-
-        {!isLoading && !hasMore && !searchQuery && movies.length > 0 && (
-          <div className='text-center text-gray-400 py-4'>
-            You&apos;ve reached the end of the list.
+          <div className='container mx-auto px-4 py-8'>
+            <h1 className='text-2xl font-bold text-gray-800 mb-6'>
+              {genre.replace('fetch', '').replace(/([A-Z])/g, ' $1').trim()} Movies
+            </h1>
+            {isLoading ? (
+              <div className='flex justify-center items-center h-64'>
+                <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-500'></div>
+              </div>
+            ) : error ? (
+              <div className='text-center text-red-500 mt-4'>{error}</div>
+            ) : (
+              <Results results={movies} onMovieClick={handleMovieClick} />
+            )}
           </div>
-        )}
-      </div>
+        </>
+      ) : (
+        /* Homepage with Hero and Sections */
+        <>
+          <HeroSection onSearch={handleSearch} />
+          
+          <TrendingSection
+            movies={trendingMovies}
+            title="Trending"
+            onMovieClick={handleMovieClick}
+          />
+          
+          <TrailerSection
+            movies={popularMovies}
+            onMovieClick={handleMovieClick}
+          />
+          
+          <TrendingSection
+            movies={popularMovies}
+            title="What's Popular"
+            onMovieClick={handleMovieClick}
+          />
+
+          {/* Genre-wise Movie Rows */}
+          <GenreRows onMovieClick={handleMovieClick} />
+        </>
+      )}
 
       <MovieModal
         movie={selectedMovie}
         isOpen={isModalOpen}
         onClose={closeModal}
       />
+      
       <Footer />
     </main>
   );

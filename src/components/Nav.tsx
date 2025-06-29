@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import requests from '@/utils/api';
+import { requests } from '@/api';
 import useMovieStore from '@/store/useMovieStore';
 
 function Nav() {

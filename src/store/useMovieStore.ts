@@ -2,9 +2,9 @@ import { create } from 'zustand';
 import {
   Movie,
   fetchMovies,
-  searchMovies,
+  searchMovies as searchMoviesAPI,
   fetchMovieTrailer,
-} from '@/utils/api';
+} from '@/api';
 
 interface MovieState {
   movies: Movie[];
@@ -18,7 +18,7 @@ interface MovieState {
   selectedTrailerKey: string | null;
   isModalOpen: boolean;
   fetchMoviesByGenre: (genre?: string, loadMore?: boolean) => Promise<void>;
-  searchMoviesByQuery: (query: string) => Promise<void>;
+  searchMovies: (query: string) => Promise<void>;
   setSelectedGenre: (genre: string | null) => void;
   clearSearchResults: () => void;
   setSelectedMovie: (movie: Movie | null) => Promise<void>;
@@ -98,15 +98,15 @@ const useMovieStore = create<MovieState>((set, get) => ({
     }
   },
 
-  searchMoviesByQuery: async (query: string) => {
+  searchMovies: async (query: string) => {
     try {
       set({ isLoading: true, error: null });
-      const response = await searchMovies(query);
+      const response = await searchMoviesAPI(query);
       set({
         searchResults: response.results,
         isLoading: false,
-        currentPage: 1, // Reset page for search results
-        hasMore: false, // Assume no infinite scroll for search currently
+        currentPage: 1,
+        hasMore: false,
       });
     } catch (error) {
       set({

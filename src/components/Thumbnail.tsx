@@ -1,20 +1,25 @@
 "use client";
 
-import { Movie } from "@/utils/api";
+import { Movie } from "@/api";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import useMovieStore from "@/store/useMovieStore";
 
 interface ThumbnailProps {
   movie: Movie;
+  onClick?: (movie: Movie) => void;
 }
 
-function Thumbnail({ movie }: ThumbnailProps) {
+function Thumbnail({ movie, onClick }: ThumbnailProps) {
   const { setSelectedMovie, openModal } = useMovieStore();
 
   const handleClick = () => {
-    setSelectedMovie(movie);
-    openModal();
+    if (onClick) {
+      onClick(movie);
+    } else {
+      setSelectedMovie(movie);
+      openModal();
+    }
   };
 
   return (

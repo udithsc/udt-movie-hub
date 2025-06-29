@@ -3,14 +3,16 @@ const BASE_URL = "https://api.themoviedb.org/3";
 
 export interface Movie {
   id: number;
-  title: string;
+  title?: string;
+  name?: string;
   original_name?: string;
   overview: string;
   backdrop_path: string;
   poster_path: string;
-  release_date: string;
+  release_date?: string;
   first_air_date?: string;
   vote_count: number;
+  vote_average: number;
   media_type?: string;
 }
 
@@ -24,41 +26,8 @@ export interface MovieVideo {
   type: string;
 }
 
-const requests = {
-  fetchTrending: {
-    url: `/trending/all/week?api_key=${API_KEY}&language=en-US`,
-  },
-  fetchTopRated: {
-    url: `/movie/top_rated?api_key=${API_KEY}&language=en-US`,
-  },
-  fetchActionMovies: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=28`,
-  },
-  fetchComedyMovies: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=35`,
-  },
-  fetchHorrorMovies: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=27`,
-  },
-  fetchRomanceMovies: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=10749`,
-  },
-  fetchMystery: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=9648`,
-  },
-  fetchSciFi: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=878`,
-  },
-  fetchWestern: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=37`,
-  },
-  fetchAnimation: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=16`,
-  },
-  fetchTV: {
-    url: `/discover/movie?api_key=${API_KEY}&with_genres=10770`,
-  },
-};
+// Import requests from requests.ts to avoid duplication
+import requests from './requests';
 
 export async function fetchMovies(
   genre?: string,

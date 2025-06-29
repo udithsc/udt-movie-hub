@@ -3,10 +3,11 @@
 import React from 'react';
 import Thumbnail from './Thumbnail';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Movie } from '@/utils/api';
+import { Movie } from '@/api';
 
 interface ResultsProps {
   results: Movie[];
+  onMovieClick?: (movie: Movie) => void;
 }
 
 const container = {
@@ -24,7 +25,7 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-function Results({ results = [] }: ResultsProps) {
+function Results({ results = [], onMovieClick }: ResultsProps) {
   if (!results || results.length === 0) {
     return (
       <div className='px-5 my-10 text-center text-gray-400'>
@@ -56,7 +57,7 @@ function Results({ results = [] }: ResultsProps) {
             className='transform transition-all duration-200'
             layout
           >
-            <Thumbnail movie={movie} />
+            <Thumbnail movie={movie} onClick={onMovieClick} />
           </motion.div>
         ))}
       </AnimatePresence>
