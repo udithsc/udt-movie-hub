@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import Image from 'next/image';
+import { ChevronLeftIcon, ChevronRightIcon, SparklesIcon } from '@heroicons/react/24/solid';
 import { Movie } from '@/api';
+import Thumbnail from './Thumbnail';
 
 interface TrendingSectionProps {
   movies: Movie[];
@@ -15,114 +15,132 @@ interface TrendingSectionProps {
 function TrendingSection({ movies, title, onMovieClick }: TrendingSectionProps) {
   const [activeTab, setActiveTab] = useState<'today' | 'week'>('today');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      setCanScrollLeft(scrollRef.current.scrollLeft > 0);
+      setCanScrollRight(
+        scrollRef.current.scrollLeft <
+          scrollRef.current.scrollWidth - scrollRef.current.clientWidth
+      );
+    }
+  };
+
+  useEffect(() => {
+    checkScroll();
+    const timer = setTimeout(checkScroll, 500);
+    return () => clearTimeout(timer);
+  }, [movies]);
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 400;
       scrollRef.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
+      setTimeout(checkScroll, 500);
     }
   };
 
   return (
-    <section className='py-12 bg-white'>
-      <div className='container mx-auto px-4'>
+    <motion.section
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      className='py-12'
+    >
+      <div className='container mx-auto px-4 md:px-8'>
         {/* Section Header */}
-        <div className='flex items-center justify-between mb-8'>
-          <div className='flex items-center space-x-6'>
-            <h2 className='text-2xl font-bold text-gray-800'>{title}</h2>
-            
-            {/* Toggle Tabs */}
-            <div className='flex bg-[#032541] rounded-full p-1'>
-              <button
-                onClick={() => setActiveTab('today')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  activeTab === 'today'
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                    : 'text-white hover:text-red-300'
-                }`}
-              >
-                Today
-              </button>
-              <button
-                onClick={() => setActiveTab('week')}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  activeTab === 'week'
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                    : 'text-white hover:text-red-300'
-                }`}
-              >
-                This Week
-              </button>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className='flex items-center justify-between mb-8'
+        >
+          <div className='flex items-center gap-4'>
+            <div className='flex items-center gap-2.5'>
+              <SparklesIcon className='h-6 w-6 text-red-600' />
+              <h2 className='text-2xl md:text-3xl font-black text-white'>{title}</h2>
             </div>
-          </div>
 
-          {/* Navigation Buttons */}
-          <div className='flex space-x-2'>
-            <button
-              onClick={() => scroll('left')}
-              className='p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors'
+            {/* Toggle Tabs */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className='flex gap-1 bg-gray-800/50 rounded-full p-1 border border-gray-700'
             >
-              <ChevronLeftIcon className='h-5 w-5 text-gray-600' />
-            </button>
-            <button
-              onClick={() => scroll('right')}
-              className='p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors'
-            >
-              <ChevronRightIcon className='h-5 w-5 text-gray-600' />
-            </button>
+              {['today', 'week'].map((tab) => (
+                <motion.button
+                  key={tab}
+                  onClick={() => setActiveTab(tab as 'today' | 'week')}
+                  animate={{
+                    backgroundColor:
+                      activeTab === tab
+                        ? 'rgb(220, 38, 38)'
+                        : 'transparent',
+                    color: activeTab === tab ? '#ffffff' : '#9ca3af',
+                  }}
+                  className='px-4 py-2 rounded-full text-sm font-semibold transition-all'
+                >
+                  {tab === 'today' ? 'Today' : 'This Week'}
+                </motion.button>
+              ))}
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Movies Scroll Container */}
-        <div className='relative'>
+        {/* Movies Carousel */}
+        <div className='relative group'>
           <div
             ref={scrollRef}
-            className='flex space-x-4 overflow-x-auto scrollbar-hide pb-4'
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onScroll={checkScroll}
+            className='flex gap-4 overflow-x-scroll scrollbar-hide'
           >
-            {movies.map((movie, index) => (
+            {movies.map((movie) => (
               <motion.div
                 key={movie.id}
-                initial={{ opacity: 0, x: 50 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className='flex-shrink-0 w-40 cursor-pointer group'
-                onClick={() => onMovieClick(movie)}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                className='flex-shrink-0 w-64 md:w-80'
               >
-                {/* Movie Poster */}
-                <div className='relative mb-3 rounded-lg overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow'>
-                  <Image
-                    src={`https://image.tmdb.org/t/p/w342${movie.poster_path}`}
-                    alt={movie.title || movie.name || 'Movie poster'}
-                    width={342}
-                    height={240}
-                    className='w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300'
-                  />
-                  
-                  {/* Rating Badge */}
-                  <div className='absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full'>
-                    {movie.vote_average.toFixed(1)}
-                  </div>
-                </div>
-
-                {/* Movie Info */}
-                <div>
-                  <h3 className='font-semibold text-sm text-gray-800 mb-1 line-clamp-2 group-hover:text-red-600 transition-colors'>
-                    {movie.title || movie.name}
-                  </h3>
-                  <p className='text-gray-500 text-xs'>
-                    {movie.release_date || movie.first_air_date}
-                  </p>
+                <div onClick={() => onMovieClick(movie)}>
+                  <Thumbnail movie={movie} />
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* Navigation Buttons */}
+          {canScrollLeft && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              whileHover={{ opacity: 1, scale: 1.1 }}
+              onClick={() => scroll('left')}
+              className='absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full hidden group-hover:flex items-center justify-center transition-all backdrop-blur-sm'
+            >
+              <ChevronLeftIcon className='h-6 w-6' />
+            </motion.button>
+          )}
+
+          {canScrollRight && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              whileHover={{ opacity: 1, scale: 1.1 }}
+              onClick={() => scroll('right')}
+              className='absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full hidden group-hover:flex items-center justify-center transition-all backdrop-blur-sm'
+            >
+              <ChevronRightIcon className='h-6 w-6' />
+            </motion.button>
+          )}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }
 

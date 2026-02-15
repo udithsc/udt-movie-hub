@@ -61,13 +61,13 @@ function GenreRows({ onMovieClick }: GenreRowsProps) {
   }, [genreKeys]);
 
   return (
-    <div className='bg-white'>
+    <div className='bg-transparent'>
       {genreKeys.map((genreKey) => (
         <div key={genreKey}>
           {loading[genreKey] ? (
             <div className='py-12'>
               <div className='container mx-auto px-4'>
-                <h2 className='text-2xl font-bold text-gray-800 mb-8'>
+                <h2 className='text-2xl font-bold text-white mb-8'>
                   {getGenreDisplayName(genreKey)}
                 </h2>
                 <div className='flex justify-center items-center h-32'>

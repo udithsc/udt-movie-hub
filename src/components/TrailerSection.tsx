@@ -26,12 +26,12 @@ function TrailerSection({ movies, onMovieClick }: TrailerSectionProps) {
   };
 
   return (
-    <section className='py-12 bg-gray-50'>
+    <section className='py-12 bg-transparent'>
       <div className='container mx-auto px-4'>
         {/* Section Header */}
         <div className='flex items-center justify-between mb-8'>
           <div className='flex items-center space-x-6'>
-            <h2 className='text-2xl font-bold text-gray-800'>Latest Trailers</h2>
+            <h2 className='text-2xl font-bold text-white'>Latest Trailers</h2>
             
             {/* Toggle Tabs */}
             <div className='flex bg-[#032541] rounded-full p-1'>
@@ -62,15 +62,15 @@ function TrailerSection({ movies, onMovieClick }: TrailerSectionProps) {
           <div className='flex space-x-2'>
             <button
               onClick={() => scroll('left')}
-              className='p-2 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-md'
+              className='p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors shadow-md'
             >
-              <ChevronLeftIcon className='h-5 w-5 text-gray-600' />
+              <ChevronLeftIcon className='h-5 w-5 text-white' />
             </button>
             <button
               onClick={() => scroll('right')}
-              className='p-2 rounded-full bg-white hover:bg-gray-100 transition-colors shadow-md'
+              className='p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors shadow-md'
             >
-              <ChevronRightIcon className='h-5 w-5 text-gray-600' />
+              <ChevronRightIcon className='h-5 w-5 text-white' />
             </button>
           </div>
         </div>
@@ -92,9 +92,9 @@ function TrailerSection({ movies, onMovieClick }: TrailerSectionProps) {
                 onClick={() => onMovieClick(movie)}
               >
                 {/* Trailer Card */}
-                <div className='bg-white rounded-lg shadow-lg overflow-hidden group-hover:shadow-xl transition-shadow'>
+                <div className='bg-gray-800 rounded-lg shadow-lg overflow-hidden group-hover:shadow-xl transition-shadow'>
                   {/* Backdrop Image with Play Button */}
-                  <div className='relative h-48 bg-gray-200'>
+                  <div className='relative h-48 bg-gray-900'>
                     <Image
                       src={`https://image.tmdb.org/t/p/w780${movie.backdrop_path}`}
                       alt={movie.title || movie.name || 'Movie poster'}
@@ -125,10 +125,10 @@ function TrailerSection({ movies, onMovieClick }: TrailerSectionProps) {
                       
                       {/* Details */}
                       <div className='flex-1 min-w-0'>
-                        <h3 className='font-semibold text-gray-800 mb-1 line-clamp-1 group-hover:text-red-600 transition-colors'>
+                        <h3 className='font-semibold text-white mb-1 line-clamp-1 group-hover:text-red-600 transition-colors'>
                           {movie.title || movie.name}
                         </h3>
-                        <p className='text-gray-600 text-sm mb-2'>
+                        <p className='text-gray-400 text-sm mb-2'>
                           {movie.release_date || movie.first_air_date}
                         </p>
                         <p className='text-gray-500 text-sm line-clamp-2'>

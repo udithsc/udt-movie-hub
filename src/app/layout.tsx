@@ -9,8 +9,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-[#06202A] text-gray-300">{children}</body>
+    <html lang="en" className="scroll-smooth">
+      <body className="bg-transparent text-gray-100 min-h-screen overflow-x-hidden">
+        {children}
+      </body>
     </html>
   );
 }
